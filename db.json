@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "name": "slom",
+      "password": "$2b$10$b7yyiRMIagbusaLne9QZce04tEDvSiZIEnzUFehx4HV9CZt8ImYyO",
+      "role": "manager",
+      "email": ""
+    },
+    {
+      "name": "اكرم",
+      "password": "$2b$10$O2OkSxL9rWToo4m109uAjeBJESgZv4K0fFjh.J8vyPACDPTMMFjay",
+      "role": "employee",
+      "email": "ssloommxxx@gmail.com",
+      "phone": "966591252469"
+    }
+  ],
+  "tasks": []
+}

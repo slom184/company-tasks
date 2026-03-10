@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>مهام الشركة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root {
+  --bg: #f5f4f0; --surface: #ffffff; --border: #e2ddd6;
+  --accent: #25D366; --accent-dark: #128C7E;
+  --warn: #e8a020; --danger: #d63031;
+  --text: #1a1a1a; --muted: #8a8680; --tag-bg: #eef9f2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+#login-screen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px; background: #0f1923;
+}
+.login-box {
+  background: #16213e; border: 1px solid #1e3a5f; border-radius: 24px;
+  padding: 36px 32px; width: 100%; max-width: 360px; text-align: center;
+}
+.login-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+}
+.login-box h1 { font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.login-box p  { font-size: 0.83rem; color: #6b7fa3; margin-bottom: 28px; }
+.login-input {
+  width: 100%; background: #0f2744; border: 1.5px solid #1e3a5f; border-radius: 12px;
+  color: #fff; font-family: 'Tajawal', sans-serif; font-size: 0.95rem;
+  padding: 12px 14px; margin-bottom: 12px; outline: none; text-align: right;
+}
+.login-input:focus { border-color: var(--accent); }
+.login-input::placeholder { color: #4a5a7a; }
+.btn-login {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none; border-radius: 14px; color: #fff;
+  font-family: 'Tajawal', sans-serif; font-size: 1rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.3);
+}
+.error-msg { color: #fc8181; font-size: 0.82rem; margin-top: 10px; display: none; }
+#app { display: none; }
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.topbar-name { font-size: 1rem; font-weight: 800; }
+.role-badge {
+  font-size: 0.72rem; background: var(--tag-bg); color: var(--accent-dark);
+  border: 1px solid #c3e6cb; padding: 2px 10px; border-radius: 20px; font-weight: 700;
+}
+.btn-logout {
+  background: none; border: 1px solid var(--border); border-radius: 10px;
+  padding: 6px 14px; font-family: 'Tajawal', sans-serif;
+  font-size: 0.8rem; color: var(--muted); cursor: pointer;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+.main { max-width: 680px; margin: 0 auto; padding: 24px 16px 80px; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; text-align: center;
+}
+.stat-n { font-size: 1.9rem; font-weight: 900; color: var(--accent-dark); line-height: 1; }
+.stat-l { font-size: 0.72rem; color: var(--muted); font-weight: 700; margin-top: 4px; }
+.section-title { font-size: 0.78rem; font-weight: 800; color: var(--muted); margin-bottom: 12px; }
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px; margin-bottom: 28px;
+}
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.full { grid-column: 1/-1; }
+label { font-size: 0.78rem; color: var(--muted); font-weight: 700; }
+input, select, textarea {
+  background: #fafafa; border: 1.5px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'Tajawal', sans-serif; font-size: 0.9rem;
+  padding: 9px 12px; outline: none; width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); background: #fff; }
+textarea { resize: vertical; min-height: 70px; }
+.btn-add {
+  margin-top: 14px; width: 100%; padding: 12px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff; font-family: 'Tajawal', sans-serif; font-size: 0.95rem; font-weight: 800; cursor: pointer;
+}
+.btn-add:disabled { opacity: 0.6; cursor: not-allowed; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter-btn {
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--muted); font-family: 'Tajawal', sans-serif;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+.filter-btn.active, .filter-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+#tasks-list { display: flex; flex-direction: column; gap: 12px; }
+.task-card {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px;
+  padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;
+  position: relative; animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.priority-bar { position: absolute; right: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 0 4px 4px 0; }
+.priority-high   .priority-bar { background: var(--danger); }
+.priority-medium .priority-bar { background: var(--warn); }
+.priority-low    .priority-bar { background: var(--accent); }
+.task-check {
+  width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px; background: #fafafa;
+}
+.task-check.checked { background: var(--accent); border-color: var(--accent); }
+.task-check.checked::after { content:'✓'; color:#fff; font-size:13px; font-weight:800; }
+.task-body { flex:1; min-width:0; }
+.task-title { font-size:1rem; font-weight:800; margin-bottom:4px; line-height:1.4; }
+.task-card.done .task-title { text-decoration:line-through; color:var(--muted); }
+.task-desc { font-size:0.83rem; color:var(--muted); margin-bottom:10px; line-height:1.6; }
+.task-meta { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.badge { padding:3px 9px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+.badge-date     { background:#e8f4fd; color:#2980b9; }
+.badge-assignee { background:#f0e6ff; color:#7c3aed; }
+.badge-high     { background:#fde8e8; color:var(--danger); }
+.badge-medium   { background:#fef3e2; color:#c0790a; }
+.badge-low      { background:var(--tag-bg); color:var(--accent-dark); }
+.countdown { font-size:0.72rem; font-weight:800; padding:3px 9px; border-radius:20px; }
+.countdown.overdue { background:#fde8e8; color:var(--danger); }
+.countdown.urgent  { background:#fef3e2; color:#c0790a; }
+.countdown.soon    { background:#fff8e1; color:#b7860b; }
+.countdown.ok      { background:var(--tag-bg); color:var(--accent-dark); }
+.task-actions { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+.btn-del {
+  background: none; border: 1.5px solid var(--border); border-radius: 10px;
+  color: var(--muted); cursor: pointer; font-size: 14px; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-del:hover { border-color: var(--danger); color: var(--danger); background: #fde8e8; }
+.empty { text-align:center; color:var(--muted); padding:48px 20px; }
+.empty span { font-size:3rem; display:block; margin-bottom:12px; }
+#toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #1a1a1a; color: #fff; padding: 11px 22px; border-radius: 14px;
+  font-size: 0.88rem; font-weight: 700; transition: transform 0.35s; z-index: 999;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+@media(max-width:480px){ .fields { grid-template-columns:1fr; } .field.full { grid-column:1; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-icon">✅</div>
+    <h1>مهام الشركة</h1>
+    <p>أدخل كلمة السر للدخول</p>
+    <input class="login-input" id="login-pass" type="password" placeholder="كلمة السر" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="btn-login" onclick="doLogin()">دخول</button>
+    <div class="error-msg" id="error-msg">❌ كلمة السر غلط</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">✅</div>
+      <div>
+        <div class="topbar-name" id="topbar-name"></div>
+        <div class="role-badge" id="topbar-role"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-logout" onclick="showProfile()" id="btn-profile" style="display:none">👥 الموظفين</button>
+      <button class="btn-logout" onclick="logout()">خروج 🚪</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats" id="stats"></div>
+
+    <div id="form-section" style="display:none">
+      <div class="section-title">إضافة مهمة جديدة</div>
+      <div class="form-card">
+        <div class="fields">
+          <div class="field full">
+            <label>عنوان المهمة</label>
+            <input id="f-title" placeholder="مثال: مراجعة تقرير المبيعات"/>
+          </div>
+          <div class="field full">
+            <label>المطلوب بالتفصيل</label>
+            <textarea id="f-desc" placeholder="اكتب ما هو المطلوب..."></textarea>
+          </div>
+          <div class="field">
+            <label>📅 تاريخ الاستحقاق</label>
+            <input id="f-date" type="date"/>
+          </div>
+          <div class="field">
+            <label>⏰ الوقت</label>
+            <input id="f-time" type="time"/>
+          </div>
+          <div class="field">
+            <label>🔥 الأولوية</label>
+            <select id="f-priority">
+              <option value="high">عالية 🔴</option>
+              <option value="medium" selected>متوسطة 🟡</option>
+              <option value="low">منخفضة 🟢</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>👤 تكليف لـ</label>
+            <select id="f-assignee"></select>
+          </div>
+        </div>
+        <button class="btn-add" id="btn-add" onclick="addTask()">📧 إضافة وإرسال إيميل + واتساب</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">الكل</button>
+      <button class="filter-btn" onclick="setFilter('active',this)">نشطة</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">مكتملة ✅</button>
+      <button class="filter-btn" onclick="setFilter('overdue',this)">متأخرة ⚠️</button>
+    </div>
+    <div id="tasks-list"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- PROFILE MODAL -->
+<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+  <div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.3);margin:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h3 style="font-size:1rem;font-weight:800">👥 إدارة الموظفين</h3>
+      <button onclick="closeProfile()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <div id="emp-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+    <div style="background:#f8f8f6;border:1.5px dashed var(--border);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-size:0.78rem;font-weight:800;color:var(--muted);margin-bottom:10px">➕ إضافة موظف جديد</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="new-emp-name"     placeholder="الاسم" style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:Tajawal,sans-serif;font-size:0.88rem;outline:none;width:100%"/>
+        <input id="new-emp-password" placeholder="كلمة السر" type="password" style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:Tajawal,sans-serif;font-size:0.88rem;outline:none;width:100%;direction:ltr"/>
+        <input id="new-emp-email"    placeholder="الإيميل" style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:Tajawal,sans-serif;font-size:0.88rem;outline:none;width:100%;direction:ltr"/>
+        <input id="new-emp-phone"    placeholder="رقم واتساب (مثال: 966501234567)" style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-family:Tajawal,sans-serif;font-size:0.88rem;outline:none;width:100%;direction:ltr"/>
+        <button onclick="addEmployee()" style="padding:10px;background:var(--accent-dark);border:none;border-radius:10px;color:#fff;font-family:Tajawal,sans-serif;font-weight:800;font-size:0.85rem;cursor:pointer">➕ إضافة</button>
+      </div>
+    </div>
+    <button onclick="closeProfile()" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;border-radius:12px;color:#fff;font-family:Tajawal,sans-serif;font-weight:800;font-size:0.88rem;cursor:pointer">✅ إغلاق</button>
+  </div>
+</div>
+
+<script>
+const API = '';
+const emailConfig = { service:'service_8beirgu', template:'template_cq8tiz9', pubkey:'_ykHXPBI8aqx2R-bU' };
+emailjs.init(emailConfig.pubkey);
+
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+let tasks = [];
+let employees = [];
+let currentFilter = 'all';
+
+// ─── AUTH ───
+async function doLogin() {
+  const pass = document.getElementById('login-pass').value.trim();
+  try {
+    const res = await fetch(API + '/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) { document.getElementById('error-msg').style.display = 'block'; return; }
+    token = data.token;
+    currentUser = { name: data.name, role: data.role };
+    localStorage.setItem('token', token);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    document.getElementById('error-msg').style.display = 'none';
+    initApp();
+  } catch { toast('❌ خطأ في الاتصال'); }
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('currentUser');
+  token = null; currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function initApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('topbar-name').textContent = currentUser.name;
+  document.getElementById('topbar-role').textContent = currentUser.role === 'manager' ? '👔 مدير' : '👷 موظف';
+
+  if (currentUser.role === 'manager') {
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('btn-profile').style.display = 'block';
+    document.getElementById('f-date').valueAsDate = new Date();
+    const now = new Date();
+    document.getElementById('f-time').value = now.toTimeString().slice(0,5);
+    await loadEmployees();
+    populateAssignee();
+  }
+  await loadTasks();
+}
+
+// ─── API CALLS ───
+async function apiFetch(url, options = {}) {
+  const res = await fetch(API + url, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(options.headers || {}) }
+  });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+
+async function loadTasks() {
+  tasks = await apiFetch('/api/tasks') || [];
+  render();
+}
+
+async function loadEmployees() {
+  employees = await apiFetch('/api/users') || [];
+}
+
+async function addTask() {
+  const title    = document.getElementById('f-title').value.trim();
+  const desc     = document.getElementById('f-desc').value.trim();
+  const date     = document.getElementById('f-date').value;
+  const time     = document.getElementById('f-time').value;
+  const priority = document.getElementById('f-priority').value;
+  const assignee = document.getElementById('f-assignee').value;
+
+  if (!title) { toast('⚠️ أدخل عنوان المهمة'); return; }
+  if (!date)  { toast('⚠️ حدد تاريخ الاستحقاق'); return; }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true; btn.textContent = '⏳ جاري...';
+
+  const task = await apiFetch('/api/tasks', {
+    method: 'POST', body: JSON.stringify({ title, desc, date, time, priority, assignee })
+  });
+
+  if (task) {
+    tasks.unshift(task);
+    render();
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-desc').value  = '';
+    document.getElementById('f-time').value  = '';
+    document.getElementById('f-priority').value = 'medium';
+    document.getElementById('f-date').valueAsDate = new Date();
+    await sendEmail(task);
+    sendWhatsApp(task);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📧 إضافة وإرسال إيميل + واتساب';
+}
+
+async function toggleDone(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  const updated = await apiFetch('/api/tasks/' + id, {
+    method: 'PUT', body: JSON.stringify({ done: !t.done })
+  });
+  if (updated) { t.done = updated.done; render(); }
+}
+
+async function deleteTask(id) {
+  await apiFetch('/api/tasks/' + id, { method: 'DELETE' });
+  tasks = tasks.filter(x => x.id !== id);
+  render(); toast('🗑️ تم الحذف');
+}
+
+// ─── EMPLOYEES ───
+async function showProfile() {
+  await loadEmployees();
+  renderEmpList();
+  document.getElementById('profile-modal').style.display = 'flex';
+}
+
+function closeProfile() {
+  document.getElementById('profile-modal').style.display = 'none';
+  populateAssignee();
+}
+
+function renderEmpList() {
+  document.getElementById('emp-list').innerHTML = employees.map(emp => `
+    <div style="background:#f8f8f6;border:1.5px solid var(--border);border-radius:14px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">👷</div>
+          <div style="font-weight:800">${emp.name}</div>
+        </div>
+        <button onclick="deleteEmployee('${emp.name}')" style="background:none;border:1.5px solid #fde8e8;border-radius:8px;color:var(--danger);cursor:pointer;padding:4px 8px;font-size:12px">🗑</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <input value="${emp.email||''}" onchange="updateEmp('${emp.name}','email',this.value)" placeholder="الإيميل" style="background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:Tajawal,sans-serif;font-size:0.82rem;outline:none;direction:ltr;width:100%"/>
+        <input value="${emp.phone||''}" onchange="updateEmp('${emp.name}','phone',this.value)" placeholder="رقم واتساب" style="background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:Tajawal,sans-serif;font-size:0.82rem;outline:none;direction:ltr;width:100%"/>
+      </div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:var(--muted);padding:16px">لا يوجد موظفين</div>';
+}
+
+async function updateEmp(name, field, value) {
+  await apiFetch('/api/users/' + encodeURIComponent(name), {
+    method: 'PUT', body: JSON.stringify({ [field]: value })
+  });
+  const emp = employees.find(e => e.name === name);
+  if (emp) emp[field] = value;
+}
+
+async function addEmployee() {
+  const name     = document.getElementById('new-emp-name').value.trim();
+  const password = document.getElementById('new-emp-password').value.trim();
+  const email    = document.getElementById('new-emp-email').value.trim();
+  const phone    = document.getElementById('new-emp-phone').value.trim();
+  if (!name || !password) { toast('⚠️ أدخل الاسم وكلمة السر'); return; }
+  const res = await apiFetch('/api/users', {
+    method: 'POST', body: JSON.stringify({ name, password, email, phone })
+  });
+  if (res?.ok) {
+    employees.push({ name, email, phone });
+    document.getElementById('new-emp-name').value = '';
+    document.getElementById('new-emp-password').value = '';
+    document.getElementById('new-emp-email').value = '';
+    document.getElementById('new-emp-phone').value = '';
+    renderEmpList();
+    toast('✅ تمت إضافة الموظف');
+  } else { toast('❌ ' + (res?.error || 'خطأ')); }
+}
+
+async function deleteEmployee(name) {
+  await apiFetch('/api/users/' + encodeURIComponent(name), { method: 'DELETE' });
+  employees = employees.filter(e => e.name !== name);
+  renderEmpList(); toast('🗑️ تم الحذف');
+}
+
+function populateAssignee() {
+  const sel = document.getElementById('f-assignee');
+  if (!sel) return;
+  sel.innerHTML = employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+}
+
+// ─── NOTIFICATIONS ───
+async function sendEmail(task) {
+  const emp = employees.find(u => u.name === task.assignee);
+  if (!emp?.email) return;
+  const pTxt = { high:'عالية 🔴', medium:'متوسطة 🟡', low:'منخفضة 🟢' }[task.priority];
+  const dateStr = new Date(task.date).toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  try {
+    await emailjs.send(emailConfig.service, emailConfig.template, {
+      to_name: task.assignee, to_email: emp.email, from_name: currentUser.name,
+      task_title: task.title, task_desc: task.desc || 'لا يوجد تفاصيل',
+      priority: pTxt, due_date: dateStr + (task.time ? ' · ' + task.time : ''),
+    });
+    toast('✅ تمت الإضافة وأُرسل الإيميل!');
+  } catch { toast('⚠️ المهمة أُضيفت لكن الإيميل فشل'); }
+}
+
+function sendWhatsApp(task) {
+  const emp = employees.find(u => u.name === task.assignee);
+  if (!emp?.phone) return;
+  const pTxt = { high:'🔴 عالية', medium:'🟡 متوسطة', low:'🟢 منخفضة' }[task.priority];
+  const dateStr = new Date(task.date).toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const msg = `📋 *مهمة جديدة لك*\n\n*العنوان:* ${task.title}\n${task.desc?`*المطلوب:* ${task.desc}\n`:''  }*الأولوية:* ${pTxt}\n*الموعد النهائي:* ${dateStr}${task.time?' · '+task.time:''}\n\n— ${currentUser.name}`;
+  window.open(`https://wa.me/${emp.phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ─── RENDER ───
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function isOverdue(t) {
+  return new Date(t.date + (t.time ? 'T'+t.time : 'T23:59')) < new Date() && !t.done;
+}
+
+function getCountdown(t) {
+  const diff = new Date(t.date + (t.time ? 'T'+t.time : 'T23:59')) - new Date();
+  if (diff < 0) return { label:'متأخرة!', cls:'overdue' };
+  const h = Math.floor(diff/3600000);
+  const d = Math.floor(h/24);
+  if (h < 6)  return { label:`${h} ساعة`, cls:'urgent' };
+  if (d <= 3) return { label:`${d} أيام`, cls:'soon' };
+  return { label:`${d} يوم`, cls:'ok' };
+}
+
+function filteredTasks() {
+  let list = currentUser.role === 'employee' ? tasks.filter(t => t.assignee === currentUser.name) : tasks;
+  switch (currentFilter) {
+    case 'active':  return list.filter(t => !t.done);
+    case 'done':    return list.filter(t => t.done);
+    case 'overdue': return list.filter(t => isOverdue(t));
+    default: return list;
+  }
+}
+
+function render() {
+  if (!currentUser) return;
+  const myTasks = currentUser.role === 'employee' ? tasks.filter(t => t.assignee === currentUser.name) : tasks;
+  const total = myTasks.length, done = myTasks.filter(t => t.done).length, overdue = myTasks.filter(t => isOverdue(t)).length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">إجمالي</div></div>
+    <div class="stat"><div class="stat-n">${done}</div><div class="stat-l">مكتملة ✅</div></div>
+    <div class="stat"><div class="stat-n" style="color:${overdue?'var(--danger)':'var(--accent-dark)'}">${overdue}</div><div class="stat-l">متأخرة</div></div>
+  `;
+  const list = filteredTasks();
+  if (!list.length) { document.getElementById('tasks-list').innerHTML = `<div class="empty"><span>📋</span>لا توجد مهام</div>`; return; }
+  const isManager = currentUser.role === 'manager';
+  document.getElementById('tasks-list').innerHTML = list.map(t => {
+    const cd = getCountdown(t);
+    const dateStr = new Date(t.date).toLocaleDateString('ar-SA', { month:'short', day:'numeric' });
+    const pLabel = { high:'عالية', medium:'متوسطة', low:'منخفضة' }[t.priority];
+    return `
+      <div class="task-card priority-${t.priority} ${t.done?'done':''}">
+        <div class="priority-bar"></div>
+        <div class="task-check ${t.done?'checked':''}" onclick="toggleDone(${t.id})"></div>
+        <div class="task-body">
+          <div class="task-title">${t.title}</div>
+          ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+          <div class="task-meta">
+            <span class="badge badge-date">📅 ${dateStr}${t.time?' · '+t.time:''}</span>
+            ${isManager ? `<span class="badge badge-assignee">👤 ${t.assignee}</span>` : ''}
+            <span class="badge badge-${t.priority}">● ${pLabel}</span>
+            ${!t.done ? `<span class="countdown ${cd.cls}">⏱ ${cd.label}</span>` : `<span class="badge" style="background:#eef9f2;color:var(--accent-dark)">✅ مكتملة</span>`}
+          </div>
+        </div>
+        ${isManager ? `<div class="task-actions"><button class="btn-del" onclick="deleteTask(${t.id})">🗑</button></div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── INIT ───
+if (token && currentUser) { initApp(); }
+</script>
+</body>
+</html>
